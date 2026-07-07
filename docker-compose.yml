@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # 1. Python Flask Backend
+  python-service:
+    build:
+      context: ./python-service
+      dockerfile: Dockerfile
+    container_name: python-app
+    ports:
+      - "5002:5002"
+    networks:
+      - microservices-network
+
+  # 2. .NET 10 Weather Backend
+  dotnet-service:
+    build:
+      context: ./dotnet-service
+      dockerfile: Dockerfile
+    container_name: dotnet-app
+    ports:
+      - "5001:5001"
+    networks:
+      - microservices-network
+
+  # 3. Node.js Express Gateway
+  nodejs-service:
+    build:
+      context: ./nodejs-service
+      dockerfile: Dockerfile
+    container_name: nodejs-app
+    ports:
+      - "3000:3000"
+    environment:
+      # CRITICAL: We replace 'host.docker.internal' with the internal container DNS names!
+      - PYTHON_SERVICE_URL=http://python-service:5002/api/python
+      - DOTNET_SERVICE_URL=http://dotnet-service:5001/weatherforecast
+    depends_on:
+      - python-service
+      - dotnet-service
+    networks:
+      - microservices-network
+
+# Define the isolated shared network bridge
+networks:
+  microservices-network:
+    driver: bridge
