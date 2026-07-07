@@ -40,5 +40,6 @@ jobs:
           file: ./${{ matrix.service }}/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME || 'local' }}/${{ matrix.service }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME || 'local' }}/${{ matrix.service }}:${{ github.sha }}
+
